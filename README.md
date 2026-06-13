@@ -21,7 +21,7 @@ This is an **MVP**, built CLI-first, one target at a time. See
 |-------|-----------|-------|
 | 1 | Project context + CLI + normalized findings + HTML report | ✅ working |
 | 2 | SAST pipeline (Semgrep, Gitleaks, Trivy) | ✅ working |
-| 3 | DAST pipeline (ZAP baseline, Nuclei, headers/CSP) | 🚧 scaffolded |
+| 3 | DAST pipeline (headers/CSP/CORS/cookies, Nuclei, ZAP baseline) | ✅ working |
 | 4 | Authenticated scanning (Playwright session replay) | 🚧 scaffolded |
 | 5 | AI test planner | 🚧 scaffolded |
 | 6 | Correlation engine + Mermaid diagrams | 🚧 scaffolded |

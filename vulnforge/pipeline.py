@@ -6,12 +6,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import console as ui
-from .config import ScanConfig, AppDescription, ScanMode
+from .config import ScanConfig, AppDescription, ScanMode, ConfigError
 from .context import RunContext, StageStatus, ingest_repo
 from .stack import detect_stack
 from .models import Finding, dedupe, sort_findings, severity_counts
 from .tooling import ToolRunner, RunnerMode
-from .scanners.registry import get_sast_scanner
+from .scanners.registry import get_sast_scanner, get_dast_scanner
 from .ai.provider import get_provider
 from .ai.planner import build_plan
 from .correlate import correlate
@@ -77,12 +77,18 @@ def run_scan(config: ScanConfig, description: AppDescription, runner_mode: Runne
     ui.ok(f"{len(plan.intents)} prioritized test intent(s) derived from SAST"
           + ("" if provider.available else " (heuristic; AI disabled)"))
 
-    # 5. DAST (Phase 3+) -------------------------------------------------------
+    # 5. DAST -----------------------------------------------------------------
     dast_findings: list[Finding] = []
     if config.target.base_url:
-        ui.stage("DAST engine")
-        ui.skipped("DAST adapters are scaffolded; enable in a later phase")
-        ctx.record(StageStatus("dast", "skipped", detail="not yet implemented (Phase 3+)"))
+        ui.stage("Running DAST engine")
+        try:
+            config.validate_for_dast(environment=description.environment)
+            _run_dast(config, ctx, runner, dast_findings)
+        except ConfigError as exc:
+            ui.skipped(f"DAST not run: {exc}")
+            ctx.record(StageStatus("dast", "skipped", detail=str(exc)))
+    else:
+        ui.info("no target URL set; skipping DAST")
 
     # 6. Correlate -------------------------------------------------------------
     findings = sort_findings(dedupe(correlate(sast_findings, dast_findings)))
@@ -103,6 +109,38 @@ def run_scan(config: ScanConfig, description: AppDescription, runner_mode: Runne
             f"(critical {counts['critical']}, high {counts['high']}, "
             f"medium {counts['medium']}, low {counts['low']}, info {counts['info']})")
     return ctx
+
+
+def _run_dast(config: ScanConfig, ctx: RunContext, runner: ToolRunner,
+              dast_findings: list[Finding]) -> None:
+    """Run each configured DAST scanner against the target URL, recording outcomes.
+    Honors safe mode and never lets one scanner abort the run."""
+    url = config.target.base_url
+    safe = config.scan_mode == ScanMode.SAFE
+    for name in config.dast_scanners:
+        scanner = get_dast_scanner(name)
+        if scanner is None:
+            ui.warn(f"unknown DAST scanner '{name}', skipping")
+            ctx.record(StageStatus(name, "skipped", detail="unknown scanner"))
+            continue
+        # Propagate safe-mode to scanners that support it (e.g. nuclei tag limits).
+        if hasattr(scanner, "safe_mode"):
+            scanner.safe_mode = safe
+        try:
+            outcome = scanner.scan(url, runner, _raw_writer(ctx))
+        except Exception as exc:  # noqa: BLE001 - a scanner must never kill the run
+            ui.err(f"{name} crashed: {exc}")
+            ctx.record(StageStatus(name, "error", detail=str(exc)))
+            continue
+        dast_findings.extend(outcome.findings)
+        ctx.record(StageStatus(name, outcome.state, detail=outcome.detail,
+                               findings=len(outcome.findings)))
+        if outcome.state == "ran":
+            ui.ok(f"{name}: {len(outcome.findings)} finding(s)")
+        elif outcome.state == "skipped":
+            ui.skipped(f"{name}: {outcome.detail}")
+        else:
+            ui.err(f"{name}: {outcome.detail}")
 
 
 def _raw_writer(ctx: RunContext):

@@ -162,15 +162,15 @@ class ScanConfig:
     def validate_for_sast(self) -> None:
         self.repo.validate()
 
-    def validate_for_dast(self) -> None:
+    def validate_for_dast(self, environment: str = "") -> None:
         if not self.target.base_url:
             raise ConfigError("DAST requested but target.base_url is not set.")
         if not self.authorized:
             raise ConfigError(
-                "Active DAST requires explicit authorization. Set authorized: true in the scan config."
+                "active DAST requires explicit authorization (pass --authorized or set authorized: true)"
             )
-        if self.scan_mode == ScanMode.DEEP and _env_is_prod(self):
-            raise ConfigError("Refusing 'deep' scan mode against a production environment.")
+        if self.scan_mode == ScanMode.DEEP and environment.lower() == "prod":
+            raise ConfigError("refusing 'deep' scan mode against a production environment")
 
 
 def _as_list(value: Any) -> list[str]:
@@ -188,8 +188,3 @@ def _parse_mode(value: Any) -> ScanMode:
         return ScanMode(str(value).lower())
     except ValueError:
         return ScanMode.SAFE
-
-
-def _env_is_prod(cfg: "ScanConfig") -> bool:
-    # description environment is the source of truth; scan config has no env field.
-    return False  # resolved against AppDescription.environment by the caller

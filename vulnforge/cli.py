@@ -18,7 +18,9 @@ from .config import (
     AppDescription, ScanConfig, RepoSpec, AIConfig, ScanMode, ConfigError,
 )
 from .tooling import RunnerMode, ToolRunner, docker_available
-from .scanners.registry import known_sast, get_sast_scanner, known_dast
+from .scanners.registry import (
+    known_sast, get_sast_scanner, known_dast, get_dast_scanner,
+)
 from .pipeline import run_scan
 
 _DEFAULT_DESC = """\
@@ -79,6 +81,7 @@ def _build_parser() -> argparse.ArgumentParser:
     ps.add_argument("--out", default="runs/scan", help="Output directory.")
     ps.add_argument("--mode", choices=[m.value for m in ScanMode], default="safe")
     ps.add_argument("--sast", help="Comma-separated SAST scanners (default: all).")
+    ps.add_argument("--dast", help="Comma-separated DAST scanners (default: headers,nuclei,zap).")
     ps.add_argument("--ai", choices=["none", "anthropic", "openai"], help="AI provider.")
     ps.add_argument("--runner", choices=[m.value for m in RunnerMode], default="auto")
     ps.add_argument("--timeout", type=int, default=900, help="Per-tool timeout (s).")
@@ -112,8 +115,11 @@ def _cmd_doctor(args) -> int:
         line = f"{name:<10} -> {avail.value}"
         (ui.ok if avail.value != "unavailable" else ui.skipped)(line)
     ui.stage("DAST scanners")
-    if not known_dast():
-        ui.skipped("none implemented yet (Phase 3+)")
+    for name in known_dast():
+        scanner = get_dast_scanner(name)
+        avail = scanner.availability(runner)
+        line = f"{name:<10} -> {avail.value}" + (" (built-in)" if scanner.builtin else "")
+        (ui.ok if avail.value != "unavailable" else ui.skipped)(line)
     return 0
 
 
@@ -139,6 +145,8 @@ def _cmd_scan(args) -> int:
         config.scan_mode = ScanMode(args.mode)
     if args.sast:
         config.sast_scanners = [s.strip() for s in args.sast.split(",") if s.strip()]
+    if args.dast:
+        config.dast_scanners = [s.strip() for s in args.dast.split(",") if s.strip()]
     if args.ai:
         config.ai = AIConfig(provider=args.ai)
     if args.authorized:

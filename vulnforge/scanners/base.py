@@ -30,12 +30,17 @@ class Scanner(ABC):
     engine: Engine = Engine.SAST
     native_binary: Optional[str] = None
     docker_image: Optional[str] = None
+    # Adapters that need no external tool (pure-Python checks) set this True so the
+    # registry always treats them as available.
+    builtin: bool = False
 
     def availability(self, runner: ToolRunner) -> Availability:
+        if self.builtin:
+            return Availability.NATIVE
         return runner.resolve(self.native_binary, self.docker_image)
 
     @abstractmethod
-    def scan(self, target_dir: str, runner: ToolRunner, raw_out) -> ScannerOutcome:
-        """Run against `target_dir` (SAST) or a URL (DAST). `raw_out` is a callable
-        (filename, text) -> path used to persist raw tool output for evidence."""
+    def scan(self, target: str, runner: ToolRunner, raw_out) -> ScannerOutcome:
+        """Run against `target` - a directory (SAST) or a base URL (DAST). `raw_out`
+        is a callable (filename, text) -> path used to persist raw tool output."""
         raise NotImplementedError

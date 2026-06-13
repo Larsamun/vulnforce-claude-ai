@@ -7,6 +7,9 @@ from .base import Scanner
 from .sast.semgrep import SemgrepScanner
 from .sast.gitleaks import GitleaksScanner
 from .sast.trivy import TrivyScanner
+from .dast.headers import HeadersScanner
+from .dast.nuclei import NucleiScanner
+from .dast.zap import ZapBaselineScanner
 
 _SAST: dict[str, type[Scanner]] = {
     "semgrep": SemgrepScanner,
@@ -14,8 +17,11 @@ _SAST: dict[str, type[Scanner]] = {
     "trivy": TrivyScanner,
 }
 
-# DAST adapters are registered here as they are implemented (phase 3+).
-_DAST: dict[str, type[Scanner]] = {}
+_DAST: dict[str, type[Scanner]] = {
+    "headers": HeadersScanner,
+    "nuclei": NucleiScanner,
+    "zap": ZapBaselineScanner,
+}
 
 
 def get_sast_scanner(name: str) -> Optional[Scanner]:

@@ -17,7 +17,13 @@
       "Bash(python -c \"import json;d=json.load\\(open\\('runs/sample/findings.json'\\)\\);f=[x for x in d['findings'] if x['source']=='gitleaks'][0];print\\('title:',f['title']\\);print\\('evidence:',f['evidence']\\)\")",
       "Bash(python -m vulnforge scan --path examples/sample-vuln-app --description examples/app-description.yaml --out runs/sample --authorized --ai none --timeout 300)",
       "Bash(python -c \"import json;m=json.load\\(open\\('runs/sample/run.json'\\)\\);[print\\(f\\\\\"  {s['name']:<10} {s['state']:<8} findings={s['findings']}\\\\\"\\) for s in m['stages']];print\\('  authorized:',m['authorized'],'| mode:',m['scan_mode'],'| stack:',m['detected_stack']\\)\")",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git config *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(sed -n '/DAST/,$p')",
+      "Bash(python -m vulnforge scan --path examples/sample-vuln-app --url https://example.com --description examples/app-description.yaml --out runs/dast-demo --dast headers --sast \"\" --authorized --timeout 60)",
+      "Bash(python -c \"import json;d=json.load\\(open\\('runs/dast-demo/findings.json'\\)\\);[print\\(f\\\\\"{f['severity']:<8} {f['source']:<9} {f['category']:<10} {f['title'][:58]}\\\\\"\\) for f in d['findings'] if f['engine']=='dast']\")"
     ]
   }
 }

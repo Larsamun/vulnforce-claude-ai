@@ -32,8 +32,11 @@ DAST), a manual step during the process is OK, CLI is OK, one target at a time.*
   directory, HTML report, `findings.json`, tool `doctor` command.
 - ✅ Phase 2 — SAST pipeline: Semgrep + Gitleaks + Trivy adapters (Docker-first,
   native fallback, graceful skip), repo ingestion (clone / zip / local).
-- 🚧 Phases 3–6 — DAST, authenticated scanning, AI planner, correlation, diagrams:
-  contracts and stubs in place, implemented next.
+- ✅ Phase 3 — DAST pipeline: built-in headers/CSP/CORS/cookie check (no deps),
+  Nuclei (safe-tagged) and ZAP baseline adapters; authorization + safe-mode
+  enforcement; DAST findings merged through the correlation engine.
+- 🚧 Phases 4–6 — authenticated scanning (Playwright), LLM-backed AI planner,
+  full SAST↔DAST correlation/diagrams: contracts and stubs in place, implemented next.
 
 ## Build order (remaining)
 
