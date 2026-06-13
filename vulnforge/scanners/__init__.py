@@ -1,0 +1,1 @@
+"""Scanner adapters and registry."""

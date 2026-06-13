@@ -1,0 +1,36 @@
+# VulnForge AI - scan configuration. Pass with:  vulnforge scan --config scan-config.yaml
+# CLI flags (--repo, --url, --out, --mode ...) override values set here.
+
+authorized: true                 # REQUIRED for active DAST. Records authorization.
+operator: "lars.grorud"
+scan_mode: safe                  # safe | deep | release
+
+repo:
+  # Exactly one of: url / path / zip
+  url: "https://github.com/OWASP/NodeGoat"
+  # path: "C:/code/my-app"
+  # zip: "C:/downloads/my-app.zip"
+  branch: main
+
+target:
+  base_url: "https://staging.example.com"
+  api_specs:
+    - "openapi.yaml"
+
+# Optional Playwright authenticated session (storageState JSON exported earlier).
+auth:
+  storage_state: null            # e.g. "auth/customer_a.storageState.json"
+
+scanners:
+  sast: [semgrep, gitleaks, trivy]
+  dast: [headers, nuclei, zap]   # implemented progressively
+
+ai:
+  provider: none                 # none | anthropic | openai (env can override)
+  explain_findings: true
+  use_sast_to_guide_dast: true
+
+reporting:
+  out: "runs/example"
+  formats: [html, json]
+  include_mermaid: true

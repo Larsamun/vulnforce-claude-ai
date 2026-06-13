@@ -1,0 +1,34 @@
+{
+  "Results": [
+    {
+      "Target": "requirements.txt",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2019-1010083",
+          "PkgName": "flask",
+          "InstalledVersion": "0.12.2",
+          "FixedVersion": "1.0",
+          "Severity": "HIGH",
+          "Title": "Flask denial of service",
+          "CweIDs": ["CWE-400"],
+          "References": ["https://nvd.nist.gov/vuln/detail/CVE-2019-1010083"]
+        }
+      ]
+    },
+    {
+      "Target": "Dockerfile",
+      "Misconfigurations": [
+        {
+          "ID": "DS002",
+          "Title": "Image user should not be 'root'",
+          "Severity": "MEDIUM",
+          "Description": "Running containers as root is dangerous.",
+          "Message": "Specify a non-root USER.",
+          "Resolution": "Add 'USER <non-root>' to the Dockerfile.",
+          "References": ["https://avd.aquasec.com/misconfig/ds002"],
+          "CauseMetadata": { "StartLine": 1 }
+        }
+      ]
+    }
+  ]
+}

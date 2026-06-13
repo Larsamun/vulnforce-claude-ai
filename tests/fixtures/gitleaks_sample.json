@@ -1,0 +1,10 @@
+[
+  {
+    "RuleID": "aws-access-token",
+    "Description": "AWS Access Key",
+    "File": "src/config.py",
+    "StartLine": 3,
+    "Secret": "AKIAIOSFODNN7EXAMPLE",
+    "Match": "AKIAIOSFODNN7EXAMPLE"
+  }
+]

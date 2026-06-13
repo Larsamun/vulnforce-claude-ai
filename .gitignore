@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+
+# VulnForge runtime
+.vulnforge/
+runs/
+*.findings.json
+report.html
+report*.html
+
+# Scan workspaces (cloned repos, unzipped code)
+workspace/
+scan-workspace/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

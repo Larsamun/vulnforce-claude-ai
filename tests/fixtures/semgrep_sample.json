@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "check_id": "python.lang.security.audit.formatted-sql-query.formatted-sql-query",
+      "path": "src/api/orders.py",
+      "start": { "line": 87 },
+      "end": { "line": 87 },
+      "extra": {
+        "message": "Detected SQL statement built from user input. Use parameterized queries.",
+        "severity": "ERROR",
+        "lines": "db.execute(f\"SELECT * FROM orders WHERE id = {order_id}\")",
+        "metadata": {
+          "category": "security",
+          "cwe": ["CWE-89: SQL Injection"],
+          "owasp": ["A03:2021 - Injection"],
+          "references": ["https://owasp.org/Top10/A03_2021-Injection/"]
+        }
+      }
+    },
+    {
+      "check_id": "generic.secrets.security.detected-generic-api-key",
+      "path": "src/config.py",
+      "start": { "line": 4 },
+      "end": { "line": 4 },
+      "extra": {
+        "message": "Possible hardcoded API key.",
+        "severity": "WARNING",
+        "lines": "API_KEY = '...'",
+        "metadata": { "category": "security", "cwe": "CWE-798" }
+      }
+    }
+  ],
+  "errors": []
+}

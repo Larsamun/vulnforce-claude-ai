@@ -1,0 +1,49 @@
+# VulnForge AI - application description (the "business brain" of the scan).
+# This context drives what gets tested, how deeply, and how findings are ranked.
+# Every field is optional, but the more you provide, the smarter the scan.
+
+application_name: "Customer Order Portal"
+business_purpose: >
+  Customer-facing e-commerce support portal. Customers view orders, invoices,
+  delivery status and warranty cases; service agents assist them; admins manage.
+
+primary_users:
+  - customers
+  - customer_service_agents
+  - administrators
+
+data_criticality: high          # one of: low | medium | high | critical
+
+sensitive_data:
+  - customer names
+  - addresses
+  - phone numbers
+  - order history
+  - invoices
+  - payment references
+
+critical_flows:
+  - login
+  - view order
+  - change delivery address
+  - create return case
+  - download invoice
+
+testing_goals:                  # steers prioritization of test types
+  - broken access control
+  - IDOR
+  - API authorization
+  - session handling
+  - security headers
+
+out_of_scope:
+  - denial of service
+  - destructive testing
+  - brute force against production
+
+environment: staging            # one of: dev | test | staging | prod
+
+# Free-text is also honored - the AI layer (if enabled) folds it into context.
+notes: >
+  The single most important thing to test is whether one customer can access
+  another customer's order or invoice. Do not run destructive or high-volume tests.

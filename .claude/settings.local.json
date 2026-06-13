@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc --track-changes=all vulnforce-claude-input.docx -o vulnforce-input-extracted.md)",
+      "Bash(echo \"---EXIT:$?---\")",
+      "Bash(python \"C:\\\\Users\\\\LarsGrorud\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\06f205b7-6873-4d4c-820b-08365f74bb66\\\\5e90412d-5105-469c-b824-6a5479169c9b\\\\skills\\\\docx\\\\scripts\\\\office\\\\unpack.py\" vulnforce-claude-input.docx unpacked/)",
+      "Bash(python -c \"import zipfile,re,sys; z=zipfile.ZipFile\\('vulnforce-claude-input.docx'\\); d=z.read\\('word/document.xml'\\).decode\\('utf-8','ignore'\\); import re; txt=re.sub\\(r'<w:p[ >]', '\\\\n', d\\); txt=re.sub\\(r'<[^>]+>','',txt\\); import html; print\\(html.unescape\\(txt\\)\\)\")",
+      "Bash(python -c \"import zipfile,re,html,io; z=zipfile.ZipFile\\('vulnforce-claude-input.docx'\\); d=z.read\\('word/document.xml'\\).decode\\('utf-8','ignore'\\); txt=re.sub\\(r'</w:p>', '\\\\n', d\\); txt=re.sub\\(r'<[^>]+>','',txt\\); open\\('vulnforce-input-extracted.txt','w',encoding='utf-8'\\).write\\(html.unescape\\(txt\\)\\)\")",
+      "Bash(git init *)",
+      "Bash(python -m vulnforge --version)",
+      "Bash(python -m vulnforge doctor)",
+      "Bash(python -m vulnforge scan --path examples/sample-vuln-app --description examples/app-description.yaml --out runs/sample --sast semgrep,gitleaks --timeout 540)",
+      "Bash(python -c \"import json;d=json.load\\(open\\('runs/sample/findings.json'\\)\\);[print\\(f['severity'],'|',f['source'],'|',f['title'][:70]\\) for f in d['findings']]\")",
+      "Bash(python -m vulnforge scan --path examples/sample-vuln-app --description examples/app-description.yaml --out runs/sample --authorized --timeout 540)",
+      "Bash(grep -rc \"wJalrXUtnFEMI\" runs/sample/findings.json runs/sample/report.html)",
+      "Bash(grep -rl \"wJalrXUtnFEMI\" runs/sample/findings.json runs/sample/report.html)",
+      "Bash(python -c \"import json;d=json.load\\(open\\('runs/sample/findings.json'\\)\\);f=[x for x in d['findings'] if x['source']=='gitleaks'][0];print\\('title:',f['title']\\);print\\('evidence:',f['evidence']\\)\")",
+      "Bash(python -m vulnforge scan --path examples/sample-vuln-app --description examples/app-description.yaml --out runs/sample --authorized --ai none --timeout 300)",
+      "Bash(python -c \"import json;m=json.load\\(open\\('runs/sample/run.json'\\)\\);[print\\(f\\\\\"  {s['name']:<10} {s['state']:<8} findings={s['findings']}\\\\\"\\) for s in m['stages']];print\\('  authorized:',m['authorized'],'| mode:',m['scan_mode'],'| stack:',m['detected_stack']\\)\")",
+      "Bash(git add *)"
+    ]
+  }
+}
